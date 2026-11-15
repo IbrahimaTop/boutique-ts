@@ -50,8 +50,26 @@ function creerCarte(produit: Produit): HTMLElement {
   return carte;
 }
 
+function produitsAffiches(): Produit[] {
+  const categorie = filtreCategorie.value;
+  const recherche = champRecherche.value.trim().toLowerCase();
+  return catalogue.filter(
+    (produit) =>
+      (categorie === "toutes" || produit.categorie === categorie) &&
+      produit.nom.toLowerCase().includes(recherche),
+  );
+}
+
 function afficherCatalogue(): void {
-  zoneCatalogue.replaceChildren(...catalogue.map(creerCarte));
+  const liste = produitsAffiches();
+  if (liste.length === 0) {
+    const message = document.createElement("p");
+    message.className = "vide";
+    message.textContent = "Aucun produit ne correspond à votre recherche.";
+    zoneCatalogue.replaceChildren(message);
+    return;
+  }
+  zoneCatalogue.replaceChildren(...liste.map(creerCarte));
 }
 
 function creerLignePanier(ligne: LignePanier): HTMLLIElement {
@@ -77,6 +95,9 @@ function afficherPanier(): void {
   zoneTotal.textContent = formatPrix(totalPanier(panier));
   compteur.textContent = String(nombreArticles(panier));
 }
+
+champRecherche.addEventListener("input", afficherCatalogue);
+filtreCategorie.addEventListener("change", afficherCatalogue);
 
 afficherCatalogue();
 afficherPanier();
